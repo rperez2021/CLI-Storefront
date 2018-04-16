@@ -70,8 +70,8 @@ function customer_prompt() {
     inquirer.prompt(questions).then(answers => {
         console.log('\nOrder receipt:');
         console.log(JSON.stringify(answers, null, '  '));
-        var order_item = JSON.stringify(parseInt(answers.item_id))
-        var order_quantity = JSON.stringify(parseInt(answers.quantity))
+        var order_item = parseInt(answers.item_id)
+        var order_quantity = parseInt(answers.quantity)
 
         connection.query('SELECT * FROM product_view WHERE item_id = ' + order_item, function (error, results, fields) {
             if (error) throw error;
@@ -94,7 +94,7 @@ function customer_prompt() {
     });
 }
 
-function another_order(){
+function another_order() {
     inquirer.prompt(order_again).then(answers => {
         if (answers.order_again === true) {
             initial_query()
@@ -105,11 +105,10 @@ function another_order(){
     })
 }
 
-function exit(){
+function exit() {
     inquirer.prompt(exit_bamazon).then(answers => {
-        console.log(answers.exit_bamazon)
         if (answers.exit_bamazon === true) {
-            connection.end(function(err) {
+            connection.end(function (err) {
                 //connection ends
             })
             process.exitCode = 1;
