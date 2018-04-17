@@ -1,4 +1,7 @@
 'use strict';
+var util = require("util");
+// Did not implement use of cTable due to an error with it misfiring.
+var cTable = require('console.table');
 var inquirer = require('inquirer');
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -50,17 +53,22 @@ connection.connect();
 
 
 function initial_query() {
-    connection.query('SELECT * FROM product_view', function (error, results, fields) {
+    connection.query('SELECT * FROM products', function (error, results, fields) {
         if (error) throw error;
-
+        console.log(" ")
+        console.log("//////////////////////////////////////////////////////////////////////////////////////////////////")
         console.log("Welcome to Bamazon! Please select your items")
         console.log("==================================================================================================")
+        console.table(results)
+        
+        /* Ended Up not Needing this when I started using cTable
         results.forEach(element => {
             console.log("ID: " + element.item_id + "  ||" + "Name: " + element.product_name +
                 "||" + "Department: " + element.department_name + "||" + "Price: " + element.price +
                 "||" + "QTY: " + element.stock_quantity)
             console.log("==================================================================================================")
         });
+        */
     });
     customer_prompt()
 
@@ -68,12 +76,10 @@ function initial_query() {
 
 function customer_prompt() {
     inquirer.prompt(questions).then(answers => {
-        console.log('\nOrder receipt:');
-        console.log(JSON.stringify(answers, null, '  '));
         var order_item = parseInt(answers.item_id)
         var order_quantity = parseInt(answers.quantity)
-
-        connection.query('SELECT * FROM product_view WHERE item_id = ' + order_item, function (error, results, fields) {
+        console.log('\nYou Purchased: ' + order_quantity + ' of ' + order_item );
+        connection.query('SELECT * FROM products WHERE item_id = ' + order_item, function (error, results, fields) {
             if (error) throw error;
             else if (results[0].stock_quantity - order_quantity < 0) {
                 console.log("Not enough quantity in stock")
@@ -81,16 +87,13 @@ function customer_prompt() {
             } else {
                 //Update DB with stock Change
                 var new_stock = results[0].stock_quantity - order_quantity
-                connection.query('UPDATE product_view SET stock_quantity =' + new_stock + ' WHERE item_id =' + order_item, function (error, results, fields) {
+                var sale_total = results[0].price * order_quantity
+                connection.query('UPDATE products SET stock_quantity =' + new_stock + ', product_sales=' + sale_total + ' WHERE item_id =' + order_item, function (error, results, fields) {
                     console.log('Thank you for your order')
                     another_order()
                 });
-
             };
-
         });
-
-
     });
 }
 

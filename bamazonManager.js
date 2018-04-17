@@ -1,5 +1,7 @@
 'use strict';
-var util = require('util')
+// Added util for isString
+var util = require('util');
+var cTable = require('console.table');
 var inquirer = require('inquirer');
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -116,33 +118,36 @@ function manager_prompt() {
 }
 
 function view_products() {
-    connection.query('SELECT * FROM product_view', function (error, results, fields) {
+    connection.query('SELECT * FROM products', function (error, results, fields) {
         if (error) throw error;
         console.log("//////////////////////////////////////////////////////////////////////////////////////////////////")
         console.log("Welcome to Bamazon! Please select your items")
         console.log("==================================================================================================")
-        results.forEach(element => {
-            console.log("ID: " + element.item_id + "  ||" + "Name: " + element.product_name +
-                "||" + "Department: " + element.department_name + "||" + "Price: " + element.price +
-                "||" + "QTY: " + element.stock_quantity)
-            console.log("==================================================================================================")
-        });
+        console.table(results)
+        // results.forEach(element => {
+        //     console.log("ID: " + element.item_id + "  ||" + "Name: " + element.product_name +
+        //         "||" + "Department: " + element.department_name + "||" + "Price: " + element.price +
+        //         "||" + "QTY: " + element.stock_quantity)
+        //     console.log("==================================================================================================")
+        // });
         manager_prompt()
     });
 };
 
 function view_low_inventory() {
-    connection.query('SELECT * FROM product_view WHERE stock_quantity < 5', function (error, results, fields) {
+    connection.query('SELECT * FROM products WHERE stock_quantity < 5', function (error, results, fields) {
         if (error) throw error;
         console.log("//////////////////////////////////////////////////////////////////////////////////////////////////")
         console.log("Here are the low inventory items")
         console.log("==================================================================================================")
-        results.forEach(element => {
-            console.log("ID: " + element.item_id + "  ||" + "Name: " + element.product_name +
-                "||" + "Department: " + element.department_name + "||" + "Price: " + element.price +
-                "||" + "QTY: " + element.stock_quantity)
-            console.log("==================================================================================================")
-        });
+        console.table(results)
+        
+        // results.forEach(element => {
+        //     console.log("ID: " + element.item_id + "  ||" + "Name: " + element.product_name +
+        //         "||" + "Department: " + element.department_name + "||" + "Price: " + element.price +
+        //         "||" + "QTY: " + element.stock_quantity)
+        //     console.log("==================================================================================================")
+        // });
         manager_prompt()
     });
 }
@@ -151,10 +156,10 @@ function add_to_inventory() {
     inquirer.prompt(restock).then(answers => {
         var restock_item = parseInt(answers.item_id)
         var restock_quantity = parseInt(answers.quantity)
-        connection.query('SELECT * FROM product_view WHERE item_id = ' + restock_item, function (error, results, fields) {
+        connection.query('SELECT * FROM products WHERE item_id = ' + restock_item, function (error, results, fields) {
             if (error) throw error;
             var new_stock = results[0].stock_quantity + restock_quantity
-            connection.query('UPDATE product_view SET stock_quantity =' + new_stock + ' WHERE item_id =' + restock_item, function (error, results, fields) {
+            connection.query('UPDATE products SET stock_quantity =' + new_stock + ' WHERE item_id =' + restock_item, function (error, results, fields) {
                 if (error) throw error;
                 console.log('Item has been restocked')
                 manager_prompt()
