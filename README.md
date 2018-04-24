@@ -26,6 +26,7 @@ This module allows gives access to the user to four functions:
 This module allows gives the user access to view product sales data and to create new departments. 
 
 ## Demo Video
+A demo video can be found on Youtube [Here](https://youtu.be/Ylmpa6qQ39U)
 
 ## NPM Modules
 * [Inquirer](https://www.npmjs.com/package/inquirer)
